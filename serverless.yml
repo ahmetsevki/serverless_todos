@@ -16,7 +16,7 @@ service: aws-nodejs # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs4.3
-
+  
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -45,10 +45,25 @@ provider:
 #  artifact: my-service-code.zip
 
 functions:
-  hello:
-    handler: handler.hello
-
-#    you can add any of the following events
+  hellos:
+    handler: handler.hellos
+    events:
+      - http:
+          path: hellos
+          method: get
+  postHello:
+    handler: handler.postHello
+    events:
+      - http:
+          path: hello
+          method: post
+  getHello:
+    handler: handler.getHello
+    events:
+      - http:
+          path: hello/{username}
+          method: get
+#you can add any of the following events
 #    events:
 #      - http:
 #          path: users/create
