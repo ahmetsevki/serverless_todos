@@ -16,6 +16,17 @@ service: aws-nodejs # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs4.3
+  iamRoleStatements:
+  - Effect: Allow
+    Action:
+    - dynamodb:Scan
+    - dynamodb:PutItem
+    - dynamodb:GetItem
+    - dynamodb:DeleteItem
+    - dynamodb:Query
+    - dynamodb:UpdateItem
+    Resource:
+    - "Fn::Join": ["", ["arn:aws:dynamodb:", {"Ref": "AWS::Region"}, ":", {"Ref": "AWS::AccountId"}, ":table/todo-user*"]]
   
 # you can overwrite defaults here
 #  stage: dev
@@ -83,3 +94,18 @@ functions:
 #     NewOutput:
 #       Description: "Description for the output"
 #       Value: "Some output value"
+resources:
+  Resources:
+    UserTable: 
+      Type: "AWS::DynamoDB::Table"
+      Properties: 
+        AttributeDefinitions: 
+        - AttributeName: "uid"
+          AttributeType: "S"
+        KeySchema: 
+        - AttributeName: "uid"
+          KeyType: "HASH"
+        ProvisionedThroughput: 
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: "todo-user"
