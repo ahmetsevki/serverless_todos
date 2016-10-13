@@ -4,6 +4,14 @@ var db = new AWS.DynamoDB();
 
 'use strict';
 
+/* Map user item from DynamoDb to obj */
+function mapUserItem(item){
+	return { 
+		"uid": item.uid,
+		"email": item.email,
+		"phone": item.phone
+	};
+};
 // Your first function handler
 module.exports.hellos = (event, context, cb) => {
     console.log("hellos", JSON.stringify(event))
@@ -56,22 +64,25 @@ module.exports.postUser = ( event, context, cb ) => {
 function getUsers(event, cb) {
     console.log("getUsers", JSON.stringify(event));
     var params = {
-    	"TableName": "todo-user"
+    	"TableName": "todo-user",
+    	"Limit" : event.query.limit || 5	
     };
+    if(event.query.next){
+    	params.ExclusiveStartKey = {
+    		"uid": {
+    			"S": event.query.next
+    		}
+    	};
+    }
     db.scan(params, function(err, data){
     	if (err){
     		cb(err);
     	}else{
-    		cb(null, {
-    			"body": 
-    				data.Items.map( function(item){
-    					return { 
-    						"uid": item.uid,
-    						"email": item.email,
-    						"phone": item.phone
-    					}
-    				})
-    			});
+    		var res = {"body": data.Items.map(mapUserItem)};
+    		if (data.LastEvaluatedKey !== undefined) {
+        		res.headers = {"next": data.LastEvaluatedKey.uid.S};
+      		}
+    		cb(null, res);
     	}
     });
 };
