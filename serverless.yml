@@ -86,6 +86,20 @@ functions:
       - http:
           path: user
           method: get
+  deleteUser:
+    handler: handler.deleteUser
+    events:
+      - http:
+          path: user/{userId}
+          method: delete
+  getUser:
+    handler: handler.getUser
+    events: 
+      - http: 
+          path: user/{userId}
+          method: get
+          
+
 #you can add any of the following events
 #    events:
 #      - http:

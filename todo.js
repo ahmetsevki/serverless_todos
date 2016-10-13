@@ -68,4 +68,46 @@ module.exports.getUsers = function getUsers(event, cb) {
     });
 };
 
+module.exports.deleteUser = function deleteUser(event, cb){
+    console.log("deleteUser", JSON.stringify(event));
+    var params = {
+        "TableName": "todo-user",
+        "Key": {
+            "uid": {
+                "S": event.parameters.userId
+            }
+        }
+    };
+    db.deleteItem(params, function(err){
+        if (err){
+            cb(err);
+        }else{
+            cb();
+        }
+    });
+};
+
+
+module.exports.getUser = function getUser(event, cb){
+    console.log("getUser", JSON.stringify(event));
+    var params = {
+        "TableName": "todo-user",
+        "Key": {
+            "uid": {
+                "S": event.parameters.userId
+            }
+        }
+    };
+   
+    db.getItem(params, function(err, data){
+        if (err){
+            cb(err);
+        }else {
+            if(data.Item){
+                cb(null, {body: mapUserItem(data.Item)});
+            }else{
+                cb(new Error('User not found'));        
+            }   
+        }});
+};
 

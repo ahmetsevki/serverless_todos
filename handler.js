@@ -31,5 +31,15 @@ module.exports.getUsers = (event, context, cb) => todo.getUsers({
 	    }
 	}, cb);
 
+module.exports.deleteUser = (event, context, cb) => todo.deleteUser({
+	parameters: { 
+		userId: event.path.userId
+	}}, cb);
+
+module.exports.getUser = (event, context, cb) => todo.getUser({
+	parameters: { 
+		userId: event.path.userId
+	}}, cb);
+
 // You can add more handlers here, and reference them in serverless.yml
 
