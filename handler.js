@@ -1,17 +1,7 @@
-var uuid = require('node-uuid');
-var AWS = require('aws-sdk');
-var db = new AWS.DynamoDB();
-
 'use strict';
+const todo = require('./todo.js');
 
-/* Map user item from DynamoDb to obj */
-function mapUserItem(item){
-	return { 
-		"uid": item.uid,
-		"email": item.email,
-		"phone": item.phone
-	};
-};
+
 // Your first function handler
 module.exports.hellos = (event, context, cb) => {
     console.log("hellos", JSON.stringify(event))
@@ -30,66 +20,16 @@ module.exports.getHello = (event, context, cb) => {
 };
 
 // users
-module.exports.postUser = ( event, context, cb ) => {
-    console.log("postUser", JSON.stringify(event))
-    var uid = uuid.v4()
-    var params = {
-	"Item": {
-	    "uid": { "S": uid},
-	    "email": { "S" : event.body.email },
-	    "phone": { "S" : event.body.phone }
-	},
-	"TableName": "todo-user",
-	"ConditionExpression": "attribute_not_exists(uid)"
-    };
-    console.log("params", JSON.stringify(params));
-    db.putItem( params, function(err){
-	if (err){
-	    cb(err);
-	}else{
-	    cb(null, {
-		"headers": {
-		    "uid":uid
-		},
-		"body": {
-		    "uid": params.Item.uid.S,
-		    "email": params.Item.email.S,
-		    "phone": params.Item.phone.S
-		}
-	    });
-	}
-    });
-};
+module.exports.postUser = ( event, context, cb ) => 
+	todo.postUser({body: event.body}, cb);
 
-function getUsers(event, cb) {
-    console.log("getUsers", JSON.stringify(event));
-    var params = {
-    	"TableName": "todo-user",
-    	"Limit" : event.query.limit || 5	
-    };
-    if(event.query.next){
-    	params.ExclusiveStartKey = {
-    		"uid": {
-    			"S": event.query.next
-    		}
-    	};
-    }
-    db.scan(params, function(err, data){
-    	if (err){
-    		cb(err);
-    	}else{
-    		var res = {"body": data.Items.map(mapUserItem)};
-    		if (data.LastEvaluatedKey !== undefined) {
-        		res.headers = {"next": data.LastEvaluatedKey.uid.S};
-      		}
-    		cb(null, res);
-    	}
-    });
-};
 
-module.exports.getUsers = (event, context, cb) => {
-    console.log("getUsers");
-    getUsers(event, cb);
-};
+module.exports.getUsers = (event, context, cb) => todo.getUsers({
+	    "parameters": {
+	    	"limit": event.query.limit,
+	    	"next": event.query.next /** optional */
+	    }
+	}, cb);
+
 // You can add more handlers here, and reference them in serverless.yml
 
