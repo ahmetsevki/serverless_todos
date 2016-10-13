@@ -74,6 +74,12 @@ functions:
       - http:
           path: hello/{username}
           method: get
+  postUser:
+    handler: handler.postUser
+    events:
+      - http:
+          path: user
+          method: post
 #you can add any of the following events
 #    events:
 #      - http:

@@ -1,3 +1,7 @@
+var uuid = require('node-uuid');
+var AWS = require('aws-sdk');
+var db = new AWS.DynamoDB();
+
 'use strict';
 
 // Your first function handler
@@ -17,5 +21,36 @@ module.exports.getHello = (event, context, cb) => {
     cb(null, { message: 'Hello '.concat(event.path.username), event, context });
 };
 
+// users
+module.exports.postUser = ( event, context, cb ) => {
+    console.log("postUser", JSON.stringify(event))
+    var uid = uuid.v4()
+    var params = {
+	"Item": {
+	    "uid": { "S": uid},
+	    "email": { "S" : event.body.email },
+	    "phone": { "S" : event.body.phone }
+	},
+	"TableName": "todo-user",
+	"ConditionExpression": "attribute_not_exists(uid)"
+    };
+    console.log("params", JSON.stringify(params));
+    db.putItem( params, function(err){
+	if (err){
+	    cb(err);
+	}else{
+	    cb(null, {
+		"headers": {
+		    "uid":uid
+		},
+		"body": {
+		    "uid": params.Item.uid.S,
+		    "email": params.Item.email.S,
+		    "phone": params.Item.phone.S
+		}
+	    });
+	}
+    });
+}
 // You can add more handlers here, and reference them in serverless.yml
 
