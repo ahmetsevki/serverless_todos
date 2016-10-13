@@ -12,7 +12,10 @@
 # Happy Coding!
 
 service: aws-nodejs # NOTE: update this with your service name
-
+plugins:
+  - serverless-webpack
+custom:
+  webpackIncludeModules: true
 provider:
   name: aws
   runtime: nodejs4.3
@@ -98,7 +101,7 @@ functions:
       - http: 
           path: user/{userId}
           method: get
-          
+
 
 #you can add any of the following events
 #    events:

@@ -1,3 +1,5 @@
+'use strict';
+
 var uuid = require('node-uuid');
 var AWS = require('aws-sdk');
 var db = new AWS.DynamoDB();
@@ -11,8 +13,8 @@ function mapUserItem(item) {
 }
 /** event should contain body attribute */
 module.exports.postUser = function postUser(event,cb){
-    console.log("postUser", JSON.stringify(event))
-    var uid = uuid.v4()
+    console.log("postUser", JSON.stringify(event));
+    var uid = uuid.v4();
     var params = {
     "Item": {
         "uid": { "S": uid},
@@ -102,12 +104,11 @@ module.exports.getUser = function getUser(event, cb){
     db.getItem(params, function(err, data){
         if (err){
             cb(err);
-        }else {
-            if(data.Item){
+        }else if(data.Item){
                 cb(null, {body: mapUserItem(data.Item)});
             }else{
                 cb(new Error('User not found'));        
             }   
-        }});
+        });
 };
 
