@@ -80,6 +80,12 @@ functions:
       - http:
           path: user
           method: post
+  getUsers:
+    handler: handler.getUsers
+    events:
+      - http:
+          path: user
+          method: get
 #you can add any of the following events
 #    events:
 #      - http:

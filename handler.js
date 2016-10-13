@@ -51,6 +51,34 @@ module.exports.postUser = ( event, context, cb ) => {
 	    });
 	}
     });
-}
+};
+
+function getUsers(event, cb) {
+    console.log("getUsers", JSON.stringify(event));
+    var params = {
+    	"TableName": "todo-user"
+    };
+    db.scan(params, function(err, data){
+    	if (err){
+    		cb(err);
+    	}else{
+    		cb(null, {
+    			"body": 
+    				data.Items.map( function(item){
+    					return { 
+    						"uid": item.uid,
+    						"email": item.email,
+    						"phone": item.phone
+    					}
+    				})
+    			});
+    	}
+    });
+};
+
+module.exports.getUsers = (event, context, cb) => {
+    console.log("getUsers");
+    getUsers(event, cb);
+};
 // You can add more handlers here, and reference them in serverless.yml
 
